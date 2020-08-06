@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Strategy_Pattern_First_Look.Business.Strategies.SalesTax;
 
 namespace Strategy_Pattern_First_Look.Business.Models
 {
@@ -18,60 +19,11 @@ namespace Strategy_Pattern_First_Look.Business.Models
         public ShippingStatus ShippingStatus { get; set; } = ShippingStatus.WaitingForPayment;
 
         public ShippingDetails ShippingDetails { get; set; }
+        public ISalesTaxStrtaegy SalesTaxStrategy { get; set; }
 
         public decimal GetTax()
         {
-            var destination = ShippingDetails.DestinationCountry.ToLowerInvariant();
-
-            if(destination == "sweden")
-            {
-                if (destination == ShippingDetails.OriginCountry.ToLowerInvariant())
-                {
-                    return TotalPrice * 0.25m;
-                }
-
-                #region Tax per item
-                //if (destination == ShippingDetails.OriginCountry.ToLowerInvariant())
-                //{
-                //    decimal totalTax = 0m;
-                //    foreach (var item in LineItems)
-                //    {
-                //        switch (item.Key.ItemType)
-                //        {
-                //            case ItemType.Food:
-                //                totalTax += (item.Key.Price * 0.06m) * item.Value;
-                //                break;
-
-                //            case ItemType.Literature:
-                //                totalTax += (item.Key.Price * 0.08m) * item.Value;
-                //                break;
-
-                //            case ItemType.Service:
-                //            case ItemType.Hardware:
-                //                totalTax += (item.Key.Price * 0.25m) * item.Value;
-                //                break;
-                //        }
-                //    }
-
-                //    return totalTax;
-                //}
-                #endregion
-
-                return 0;
-            }
-
-            if (destination == "us")
-            {
-                switch (ShippingDetails.DestinationState.ToLowerInvariant())
-                {
-                    case "la": return TotalPrice * 0.095m;
-                    case "ny": return TotalPrice * 0.04m;
-                    case "nyc": return TotalPrice * 0.045m;
-                    default: return 0m;
-                }
-            }
-
-            return 0m;
+            return SalesTaxStrategy?.GetTaxFor(this) ?? 0m;
         }
     }
 
