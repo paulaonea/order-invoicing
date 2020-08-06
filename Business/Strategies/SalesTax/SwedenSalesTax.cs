@@ -12,21 +12,21 @@ namespace Strategy_Pattern_First_Look.Business.Strategies.SalesTax
             if (origin == destination)
             {
                 var totalTax = 0m;
-                foreach (var (item, units) in order.LineItems)
+                foreach (var (item, quantity) in order.LineItems)
                 {
                     switch (item.ItemType)
                     {
                         case ItemType.Food:
-                            totalTax += (item.Price * 0.06m) * units;
+                            totalTax += (item.Price * 0.06m) * quantity;
                             break;
 
                         case ItemType.Literature:
-                            totalTax += (item.Price * 0.08m) * units;
+                            totalTax += (item.Price * 0.08m) * quantity;
                             break;
 
                         case ItemType.Service:
                         case ItemType.Hardware:
-                            totalTax += (item.Price * 0.25m) * units;
+                            totalTax += (item.Price * 0.25m) * quantity;
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
