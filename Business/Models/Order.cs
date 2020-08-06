@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using Strategy_Pattern_First_Look.Business.Strategies.Invoice;
+using Strategy_Pattern_First_Look.Business.Strategies.OrderShipping;
 using Strategy_Pattern_First_Look.Business.Strategies.SalesTax;
 
 namespace Strategy_Pattern_First_Look.Business.Models
@@ -25,6 +26,7 @@ namespace Strategy_Pattern_First_Look.Business.Models
         public Client Client { get; set; }
         public ISalesTax SalesTaxStrategy { get; set; }
         public InvoiceService InvoiceService { get; set; }
+        public IShippingService ShippingService { get; set; }
 
         public decimal GetTax()
         {
