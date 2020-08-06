@@ -10,9 +10,10 @@ namespace Strategy_Pattern_First_Look.Business.Strategies.Invoice
     {
         public override void GenerateInvoice(Order order)
         {
+            var textInvoice = GenerateTextInvoice(order);
             using (var client = new HttpClient())
             {
-                var content = JsonSerializer.Serialize(GenerateTextInvoice(order));
+                var content = JsonSerializer.Serialize(textInvoice);
                 client.BaseAddress = new Uri("https://****.com");
                 client.PostAsync("/print-on-demand", new StringContent(content));
             }

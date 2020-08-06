@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using Strategy_Pattern_First_Look.Business.Strategies.Invoice;
+using Strategy_Pattern_First_Look.Business.Strategies.OrderShipping;
 using Strategy_Pattern_First_Look.Business.Strategies.SalesTax;
 
 namespace Strategy_Pattern_First_Look.Business.Models
@@ -11,24 +12,37 @@ namespace Strategy_Pattern_First_Look.Business.Models
     {
         public Dictionary<Item, int> LineItems { get; } = new Dictionary<Item, int>();
 
-        public IList<Payment> SelectedPayments { get; } = new List<Payment>();
+        public IList<Payment> SelectedPayments { get; set; } = new List<Payment>();
 
-        public IList<Payment> FinalizedPayments { get; } = new List<Payment>();
+        private IEnumerable<Payment> FinalizedPayments { get; } = new List<Payment>();
 
-        public decimal AmountDue => TotalPrice - FinalizedPayments.Sum(payment => payment.Amount);
+        private decimal AmountDue => TotalPrice - FinalizedPayments.Sum(payment => payment.Amount);
 
         public decimal TotalPrice => LineItems.Sum(item => item.Key.Price * item.Value);
 
-        public ShippingStatus ShippingStatus { get; set; } = ShippingStatus.WaitingForPayment;
+        private ShippingStatus ShippingStatus { get; set; } = ShippingStatus.WaitingForPayment;
 
         public ShippingDetails ShippingDetails { get; set; }
         public Client Client { get; set; }
-        public ISalesTax SalesTaxStrategy { get; set; }
+
+        private ISalesTax SalesTaxStrategy 
+        {
+            get
+            {
+                return ShippingDetails.DestinationCountry.ToLowerInvariant() switch
+                {
+                    "sweden" => new SwedenSalesTax(),
+                    "us" => new USSalesTax(),
+                    _ => null
+                };
+            }
+        }
         public InvoiceService InvoiceService { get; set; }
+        public IShippingService ShippingService { get; set; }
 
         public decimal GetTax()
         {
-            return SalesTaxStrategy?.GetTaxFor(this) ?? 0m;
+            return SalesTaxStrategy?.GetTaxFor(this) ?? throw new Exception($"Invoice cannot be generated. Tax details are not set for tax region {this.ShippingDetails.DestinationCountry}");
         }
 
         public void FinaliseOrder()
@@ -45,6 +59,13 @@ namespace Strategy_Pattern_First_Look.Business.Models
                 throw new Exception("Unable to finalise order");
 
             }
+        }
+
+        public void ShipOrder()
+        {
+            if (AmountDue != 0) return;
+            ShippingService.Ship(this);
+            ShippingStatus = ShippingStatus.Shipped;
         }
     }
 
