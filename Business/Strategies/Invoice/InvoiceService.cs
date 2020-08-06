@@ -7,7 +7,7 @@ namespace Strategy_Pattern_First_Look.Business.Strategies.Invoice
     {
         public abstract void GenerateInvoice(Order order);
 
-        public string GenerateTextInvoice(Order order)
+        protected static string GenerateTextInvoice(Order order)
         {
             var invoiceText = $"INVOICE DATE: {DateTimeOffset.Now}{Environment.NewLine}";
             invoiceText += $"ID | NAME | PRICE | Quantity{Environment.NewLine}";
