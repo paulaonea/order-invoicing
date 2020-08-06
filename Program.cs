@@ -20,10 +20,10 @@ namespace Strategy_Pattern_First_Look
             switch (destination)
             {
                 case "sweden":
-                    order.SalesTaxStrategy = new SwedenSalesTaxStrategy();
+                    order.SalesTaxStrategy = new SwedenSalesTax();
                     break;
                 case "us":
-                    order.SalesTaxStrategy = new USSalesTaxStrategy();
+                    order.SalesTaxStrategy = new USSalesTax();
                     break;
             }
             

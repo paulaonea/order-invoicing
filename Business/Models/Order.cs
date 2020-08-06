@@ -19,7 +19,7 @@ namespace Strategy_Pattern_First_Look.Business.Models
         public ShippingStatus ShippingStatus { get; set; } = ShippingStatus.WaitingForPayment;
 
         public ShippingDetails ShippingDetails { get; set; }
-        public ISalesTaxStrtaegy SalesTaxStrategy { get; set; }
+        public ISalesTax SalesTaxStrategy { get; set; }
 
         public decimal GetTax()
         {

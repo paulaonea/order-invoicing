@@ -3,7 +3,7 @@ using Strategy_Pattern_First_Look.Business.Models;
 
 namespace Strategy_Pattern_First_Look.Business.Strategies.SalesTax
 {
-    public class SwedenSalesTaxStrategy : ISalesTaxStrtaegy
+    public class SwedenSalesTax : ISalesTax
     {
         public decimal GetTaxFor(Order order)
         {
