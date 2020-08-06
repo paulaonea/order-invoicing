@@ -12,19 +12,31 @@ namespace Strategy_Pattern_First_Look.Business.Models
     {
         public Dictionary<Item, int> LineItems { get; } = new Dictionary<Item, int>();
 
-        public IList<Payment> SelectedPayments { get; } = new List<Payment>();
+        public IList<Payment> SelectedPayments { get; set; } = new List<Payment>();
 
-        public IList<Payment> FinalizedPayments { get; } = new List<Payment>();
+        private IEnumerable<Payment> FinalizedPayments { get; } = new List<Payment>();
 
-        public decimal AmountDue => TotalPrice - FinalizedPayments.Sum(payment => payment.Amount);
+        private decimal AmountDue => TotalPrice - FinalizedPayments.Sum(payment => payment.Amount);
 
         public decimal TotalPrice => LineItems.Sum(item => item.Key.Price * item.Value);
 
-        public ShippingStatus ShippingStatus { get; set; } = ShippingStatus.WaitingForPayment;
+        private ShippingStatus ShippingStatus { get; set; } = ShippingStatus.WaitingForPayment;
 
         public ShippingDetails ShippingDetails { get; set; }
         public Client Client { get; set; }
-        public ISalesTax SalesTaxStrategy { get; set; }
+
+        private ISalesTax SalesTaxStrategy 
+        {
+            get
+            {
+                return ShippingDetails.DestinationCountry.ToLowerInvariant() switch
+                {
+                    "sweden" => new SwedenSalesTax(),
+                    "us" => new USSalesTax(),
+                    _ => null
+                };
+            }
+        }
         public InvoiceService InvoiceService { get; set; }
         public IShippingService ShippingService { get; set; }
 
@@ -47,6 +59,13 @@ namespace Strategy_Pattern_First_Look.Business.Models
                 throw new Exception("Unable to finalise order");
 
             }
+        }
+
+        public void ShipOrder()
+        {
+            if (AmountDue != 0) return;
+            ShippingService.Ship(this);
+            ShippingStatus = ShippingStatus.Shipped;
         }
     }
 
