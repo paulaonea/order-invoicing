@@ -42,7 +42,7 @@ namespace Strategy_Pattern_First_Look.Business.Models
 
         public decimal GetTax()
         {
-            return SalesTaxStrategy?.GetTaxFor(this) ?? 0m;
+            return SalesTaxStrategy?.GetTaxFor(this) ?? throw new Exception($"Invoice cannot be generated. Tax details are not set for tax region {this.ShippingDetails.DestinationCountry}");
         }
 
         public void FinaliseOrder()
