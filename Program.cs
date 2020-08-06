@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Strategy_Pattern_First_Look.Business.Models;
 using Strategy_Pattern_First_Look.Business.Strategies.Invoice;
 using Strategy_Pattern_First_Look.Business.Strategies.OrderShipping;
@@ -16,29 +17,20 @@ namespace Strategy_Pattern_First_Look
                 { 
                     OriginCountry = "Sweden",
                     DestinationCountry = "Sweden"
-                }
+                },
+                InvoiceService = new FileInvoiceService(),
+                ShippingService = new UpsShippingService(),
+                SelectedPayments = new List<Payment>
+                    { new Payment
+                    {
+                        PaymentProvider = PaymentProvider.Invoice
+                    } 
+                    }
             };
-            var destination = order.ShippingDetails.DestinationCountry.ToLowerInvariant();
-            switch (destination)
-            {
-                case "sweden":
-                    order.SalesTaxStrategy = new SwedenSalesTax();
-                    break;
-                case "us":
-                    order.SalesTaxStrategy = new USSalesTax();
-                    break;
-            }
-            order.InvoiceService = new FileInvoiceService();
-            order.ShippingService = new UpsShippingService();
-            
+
             order.LineItems.Add( new Item("CSHARP_SMORGASBORD", "C# Smorgasbord", 100m, ItemType.Literature), 1);
             order.LineItems.Add( new Item("CONSULTING","Building a website",100m, ItemType.Service), 1);
             
-            order.SelectedPayments.Add(new Payment
-            {
-                PaymentProvider = PaymentProvider.Invoice
-            });
-
             order.FinaliseOrder();
             order.ShipOrder();
             
