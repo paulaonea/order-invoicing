@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using Strategy_Pattern_First_Look.Business.Strategies.Invoice;
 using Strategy_Pattern_First_Look.Business.Strategies.SalesTax;
 
 namespace Strategy_Pattern_First_Look.Business.Models
@@ -19,12 +22,35 @@ namespace Strategy_Pattern_First_Look.Business.Models
         public ShippingStatus ShippingStatus { get; set; } = ShippingStatus.WaitingForPayment;
 
         public ShippingDetails ShippingDetails { get; set; }
+        public Client Client { get; set; }
         public ISalesTax SalesTaxStrategy { get; set; }
+        public InvoiceService InvoiceService { get; set; }
 
         public decimal GetTax()
         {
             return SalesTaxStrategy?.GetTaxFor(this) ?? 0m;
         }
+
+        public void FinaliseOrder()
+        {
+            if (SelectedPayments.Any(x => x.PaymentProvider == PaymentProvider.Invoice) && 
+                AmountDue > 0 &&
+                ShippingStatus == ShippingStatus.WaitingForPayment)
+            {
+                InvoiceService.GenerateInvoice(this);
+                ShippingStatus = ShippingStatus.ReadyForShippment;
+            }
+            else if (AmountDue > 0 )
+            {
+                throw new Exception("Unable to finalise order");
+
+            }
+        }
+    }
+
+    public class Client
+    {
+        public string Email { get; set; }
     }
 
     public class ShippingDetails
