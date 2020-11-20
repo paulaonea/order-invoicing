@@ -11,7 +11,6 @@ namespace Strategy_Pattern_First_Look
     {
         static void Main(string[] args)
         {
-            #region Input
 
             Console.WriteLine("Select the country of origin: ");
             var origin = Console.ReadLine().Trim();
@@ -19,9 +18,6 @@ namespace Strategy_Pattern_First_Look
             Console.WriteLine("Select the destination cpuntry:  ");
             var destination = Console.ReadLine().Trim();
 
-            #endregion
-
-            #region SetOrder
 
             var order = new Order
             {
@@ -43,7 +39,6 @@ namespace Strategy_Pattern_First_Look
             order.LineItems.Add( new Item("CSHARP_SMORGASBORD", "C# Smorgasbord", 100m, ItemType.Literature), 1);
             order.LineItems.Add( new Item("CONSULTING","Building a website",100m, ItemType.Service), 1);
 
-            #endregion
 
             try
             {
