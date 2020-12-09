@@ -17,13 +17,9 @@ namespace Strategy_Pattern_First_Look.Business.Strategies.Invoice
             }
 
             invoiceText += Environment.NewLine + Environment.NewLine;
-
-            var tax = order.GetTax();
-            var total = order.TotalPrice + tax;
-
             invoiceText += $"TOTAL NET: {order.TotalPrice}{Environment.NewLine}";
-            invoiceText += $"TAX TOTAL: {tax}{Environment.NewLine}";
-            invoiceText += $"TOTAL: {total}{Environment.NewLine}";
+            invoiceText += $"TAX TOTAL: {order.GetTax()}{Environment.NewLine}";
+            invoiceText += $"TOTAL: {order.TotalPrice + order.GetTax()}{Environment.NewLine}";
 
             return invoiceText;
         }
