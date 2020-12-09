@@ -11,33 +11,26 @@ namespace Strategy_Pattern_First_Look
     {
         static void Main(string[] args)
         {
-
-            Console.WriteLine("Select the country of origin: ");
-            var origin = Console.ReadLine().Trim();
-            
-            Console.WriteLine("Select the destination cpuntry:  ");
-            var destination = Console.ReadLine().Trim();
-
-
             var order = new Order
             {
-                ShippingDetails = new ShippingDetails 
-                { 
-                    OriginCountry = origin,
-                    DestinationCountry = destination
+                ShippingDetails = new ShippingDetails
+                {
+                    OriginCountry = GetOriginCountry(),
+                    DestinationCountry = GetDestinationCountry()
                 },
                 InvoiceService = GetInvoiceService(),
                 ShippingService = GetShippingService(),
                 SelectedPayments = new List<Payment>
-                { new Payment
+                {
+                    new Payment
                     {
                         PaymentProvider = PaymentProvider.Invoice
-                    } 
+                    }
                 }
             };
 
-            order.LineItems.Add( new Item("CSHARP_SMORGASBORD", "C# Smorgasbord", 100m, ItemType.Literature), 1);
-            order.LineItems.Add( new Item("CONSULTING","Building a website",100m, ItemType.Service), 1);
+            order.LineItems.Add(new Item("CSHARP_SMORGASBORD", "C# Smorgasbord", 100m, ItemType.Literature), 1);
+            order.LineItems.Add(new Item("CONSULTING", "Building a website", 100m, ItemType.Service), 1);
 
 
             try
@@ -49,55 +42,74 @@ namespace Strategy_Pattern_First_Look
                 Console.WriteLine(e);
                 throw;
             }
+
             order.ShipOrder();
-            
+
+        }
+
+        private static string GetDestinationCountry()
+        {
+            Console.WriteLine("Select the destination country:  ");
+            var destination = Console.ReadLine().Trim();
+            return destination;
+        }
+
+        private static string GetOriginCountry()
+        {
+            Console.WriteLine("Select the country of origin: ");
+            var origin = Console.ReadLine().Trim();
+            return origin;
+        }
+
+        private static DeliveryServiceOptions GetDeliveryService()
+        {
+            Console.WriteLine("Chose one of the following shipping providers: \n 1. DHL\n 2. FedEx\n 3. UPS ");
+            while (true)
+            {
+                if (int.TryParse(Console.ReadLine().Trim(), out var deliveryChoice) &
+                    Enum.IsDefined(typeof(DeliveryServiceOptions), deliveryChoice))
+                {
+                    return (DeliveryServiceOptions) deliveryChoice;
+                }
+
+                Console.WriteLine("Not an acceptable option, choose again.");
+            }
         }
 
         private static IShippingService GetShippingService()
         {
-            while (true)
+            return GetDeliveryService() switch
             {
-                Console.WriteLine("Chose one of the following shipping providers:  ");
-                Console.WriteLine("1. DHL");
-                Console.WriteLine("2. FedEx");
-                Console.WriteLine("3. UPS");
-                var shippingProvider = int.Parse(Console.ReadLine().Trim());
-                switch (shippingProvider)    
-                {
-                    case 1:
-                        return new DhlShippingService();
-                    case 2:
-                        return new FedExShippingService();
-                    case 3:
-                        return new UpsShippingService();
-                    default:
-                        break;
-                }
-            }
-            
+                DeliveryServiceOptions.DHL => new DhlShippingService(),
+                DeliveryServiceOptions.FedEx => new FedExShippingService(),
+                DeliveryServiceOptions.Ups => new UpsShippingService(),
+                _ => throw new NotImplementedException()
+            };
         }
 
         private static InvoiceService GetInvoiceService()
         {
+            return ReadDeliveryType() switch
+            {
+                InvoiceServiceOptions.Email => new EmailInvoiceService(),
+                InvoiceServiceOptions.File => new FileInvoiceService(),
+                InvoiceServiceOptions.Print => new PrintInvoiceService(),
+                _ => throw new NotImplementedException()
+            };
+        }
+
+        private static InvoiceServiceOptions ReadDeliveryType()
+        {
+            Console.WriteLine("Chose one of the following invoice delivery options: " +
+                              "\n 1. Email \n 2. File \n 3. Print");
             while (true)
             {
-                Console.WriteLine("Chose one of the following invoice delivery options: ");
-                Console.WriteLine("1. Email");
-                Console.WriteLine("2. File");
-                Console.WriteLine("3. Print");
-                var invoiceOption = int.Parse(Console.ReadLine().Trim());
-                
-                switch (invoiceOption)
+                if (int.TryParse(Console.ReadLine().Trim(), out var invoiceOption) &
+                    Enum.IsDefined(typeof(InvoiceServiceOptions), invoiceOption))
                 {
-                    case 1:
-                        return new EmailInvoiceService();
-                    case 2:
-                        return new FileInvoiceService();
-                    case 3:
-                        return new PrintInvoiceService();
-                    default:
-                        break;
+                    return (InvoiceServiceOptions)invoiceOption;
                 }
+                Console.WriteLine("Not an acceptable option, choose again.");
             }
         }
     }
