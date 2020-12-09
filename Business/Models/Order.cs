@@ -33,7 +33,8 @@ namespace Strategy_Pattern_First_Look.Business.Models
                 {
                     "sweden" => new SwedenSalesTax(),
                     "us" => new USSalesTax(),
-                    _ => null
+                    "uk" => new UKSalesTax(),
+                    _ => throw new NotImplementedException()
                 };
             }
         }
