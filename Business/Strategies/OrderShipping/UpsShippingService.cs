@@ -8,10 +8,8 @@ namespace Strategy_Pattern_First_Look.Business.Strategies.OrderShipping
     {
         public void Ship(Order order)
         {
-            using (var client = new HttpClient())
-            {
-                Console.WriteLine("The order was shipped with UPS");
-            }        
+            // to be implemented
+            Console.WriteLine("The order was shipped with UPS");
         }
     }
 }

@@ -25,25 +25,15 @@ namespace Strategy_Pattern_First_Look.Business.Models
         public ShippingDetails ShippingDetails { get; set; }
         public Client Client { get; set; }
 
-        private ISalesTax SalesTaxStrategy 
-        {
-            get
-            {
-                return ShippingDetails.DestinationCountry.ToLowerInvariant() switch
-                {
-                    "sweden" => new SwedenSalesTax(),
-                    "us" => new USSalesTax(),
-                    "uk" => new UKSalesTax(),
-                    _ => throw new NotImplementedException()
-                };
-            }
-        }
+        private ISalesTax SalesTaxStrategy => GetSalesTaxStrategy();
+
         public InvoiceService InvoiceService { get; set; }
         public IShippingService ShippingService { get; set; }
 
         public decimal GetTax()
         {
-            return SalesTaxStrategy?.GetTaxFor(this) ?? throw new Exception($"Invoice cannot be generated. Tax details are not set for tax region {this.ShippingDetails.DestinationCountry}");
+            return SalesTaxStrategy?.GetTaxFor(this) ?? 
+                   throw new Exception($"Invoice cannot be generated. Tax details are not set for tax region {this.ShippingDetails.DestinationCountry}");
         }
 
         public void FinaliseOrder()
@@ -58,7 +48,6 @@ namespace Strategy_Pattern_First_Look.Business.Models
             else if (AmountDue > 0 )
             {
                 throw new Exception("Unable to finalise order");
-
             }
         }
 
@@ -68,41 +57,17 @@ namespace Strategy_Pattern_First_Look.Business.Models
             ShippingService.Ship(this);
             ShippingStatus = ShippingStatus.Shipped;
         }
-    }
-
-    public class Client
-    {
-        public string Email { get; set; }
-    }
-
-    public class ShippingDetails
-    {
-        public string Receiver { get; set; }
-
-        public string AddressLine1 { get; set; }
-        public string AddressLine2 { get; set; }
-
-        public string PostalCode { get; set; }
-
-        public string DestinationCountry { get; set; }
-        public string DestinationState { get; set; }
-
-        public string OriginCountry { get; set; }
-        public string OriginState { get; set; }
-    }
-
-    public enum ShippingStatus 
-    { 
-        WaitingForPayment,
-        ReadyForShippment,
-        Shipped
-    }
-
-    public enum PaymentProvider
-    {
-        Paypal,
-        CreditCard,
-        Invoice
+        
+        private ISalesTax GetSalesTaxStrategy()
+        {
+            return ShippingDetails.DestinationCountry.ToLowerInvariant() switch
+            {
+                "sweden" => new SwedenSalesTax(),
+                "us" => new USSalesTax(),
+                "uk" => new UKSalesTax(),
+                _ => throw new NotImplementedException()
+            };
+        }
     }
 
     public class Payment
@@ -110,42 +75,5 @@ namespace Strategy_Pattern_First_Look.Business.Models
         public decimal Amount { get; set; }
         public PaymentProvider PaymentProvider { get; set; }
     }
-
-    public class Item
-    {
-        public string Id { get; }
-        public string Name { get; }
-        public decimal Price { get; }
-
-        public ItemType ItemType { get; set; }
-
-        public decimal GetTax()
-        {
-            switch (ItemType)
-            {
-                case ItemType.Service:
-                case ItemType.Food:
-                case ItemType.Hardware:
-                case ItemType.Literature:
-                default:
-                    return 0m;
-            }
-        }
-
-        public Item(string id, string name, decimal price, ItemType type)
-        {
-            Id = id;
-            Name = name;
-            Price = price;
-            ItemType = type;
-        }
-    }
-
-    public enum ItemType
-    {
-        Service,
-        Food,
-        Hardware,
-        Literature
-    }
+    
 }
