@@ -7,38 +7,24 @@ namespace Strategy_Pattern_First_Look.Business.Strategies.SalesTax
     {
         public decimal GetTaxFor(Order order)
         {
-            var origin = order.ShippingDetails.OriginCountry.ToLowerInvariant();
-            var destination = order.ShippingDetails.DestinationCountry.ToLowerInvariant();
-            if (origin == destination)
+            var totalTax = 0m;
+            if (string.Equals(order.ShippingDetails.OriginCountry,
+                order.ShippingDetails.DestinationCountry,
+                StringComparison.InvariantCultureIgnoreCase))
             {
-                var totalTax = 0m;
                 foreach (var (item, quantity) in order.LineItems)
                 {
-                    switch (item.ItemType)
+                    totalTax += item.ItemType switch
                     {
-                        case ItemType.Food:
-                            totalTax += (item.Price * 0.06m) * quantity;
-                            break;
-
-                        case ItemType.Literature:
-                            totalTax += (item.Price * 0.08m) * quantity;
-                            break;
-
-                        case ItemType.Service:
-                        case ItemType.Hardware:
-                            totalTax += (item.Price * 0.25m) * quantity;
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
+                        ItemType.Food => (item.Price * 0.06m) * quantity,
+                        ItemType.Literature => (item.Price * 0.08m) * quantity,
+                        ItemType.Service => (item.Price * 0.2m) * quantity,
+                        ItemType.Hardware => (item.Price * 0.25m) * quantity,
+                        _ => (item.Price * 0.1m) * quantity
+                    };
                 }
-
-                return totalTax;
             }
-            else
-            {
-                return 0m;
-            }
+            return totalTax;
         }
     }
 }
